@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List</title>
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=B612&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'B612', sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .sidebar {
+            width: 80px;
+            background-color: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .button {
+            width: 50px;
+            height: 50px;
+            margin: 10px 0;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 2px solid #0ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: rgba(0, 255, 255, 0.2);
+        }
+
+        .button img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #0ff;
+        }
+
+        .list {
+            margin-top: 20px;
+        }
+
+        .list-title, .thing, .math {
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+        }
+
+        .list-title input, .thing input, .math input {
+            width: 70%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'B612', sans-serif;
+            outline: none;
+        }
+
+        .list-title input::placeholder, .thing input::placeholder, .math input::placeholder {
+            color: #aaa;
+        }
+
+        .thing, .math {
+            margin-left: 20px;
+        }
+
+        .color-picker {
+            width: 20%;
+        }
+
+        .math-display {
+            margin-top: 5px;
+            color: #0ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="button" onclick="addList()">
+            <img src="add-list.png" alt="Add List">
+        </div>
+        <div class="button" onclick="addThing()">
+            <img src="add-thing.png" alt="Add Thing">
+        </div>
+        <div class="button" onclick="addMath('plus')">
+            <img src="math-plus.png" alt="Add Math Plus">
+        </div>
+        <div class="button" onclick="addMath('minus')">
+            <img src="math-minus.png" alt="Add Math Minus">
+        </div>
+    </div>
+    <div class="content">
+        <h1>Lists</h1>
+        <div id="lists"></div>
+    </div>
+
+    <script>
+        let listCount = 0;
+
+        function addList() {
+            const listsContainer = document.getElementById('lists');
+            const listDiv = document.createElement('div');
+            listDiv.className = 'list';
+            listDiv.id = `list-${listCount++}`;
+
+            const listTitle = document.createElement('div');
+            listTitle.className = 'list-title';
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.placeholder = 'add a name for a list';
+
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.className = 'color-picker';
+            colorPicker.oninput = () => listDiv.style.borderColor = colorPicker.value;
+
+            listTitle.appendChild(titleInput);
+            listTitle.appendChild(colorPicker);
+            listDiv.appendChild(listTitle);
+            listsContainer.appendChild(listDiv);
+        }
+
+        function addThing() {
+            const listsContainer = document.getElementById('lists');
+            const lists = listsContainer.getElementsByClassName('list');
+
+            if (lists.length === 0) {
+                alert('there is no list found');
+                return;
+            }
+
+            const listOptions = Array.from(lists).map(list => {
+                const title = list.querySelector('.list-title input').value || 'Unnamed List';
+                return `${list.id}:${title}`;
+            });
+
+            const selected = prompt(`add thing to\n${listOptions.map(opt => opt.split(':')[1]).join('\n')}`);
+
+            const selectedList = listOptions.find(opt => opt.split(':')[1] === selected);
+
+            if (selectedList) {
+                const listId = selectedList.split(':')[0];
+                const listDiv = document.getElementById(listId);
+
+                const thingDiv = document.createElement('div');
+                thingDiv.className = 'thing';
+
+                const thingInput = document.createElement('input');
+                thingInput.type = 'text';
+                thingInput.placeholder = 'Thing';
+
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.className = 'color-picker';
+                colorPicker.oninput = () => thingDiv.style.borderColor = colorPicker.value;
+
+                thingDiv.appendChild(thingInput);
+                thingDiv.appendChild(colorPicker);
+                listDiv.appendChild(thingDiv);
+            } else if (selected !== null) {
+                alert('list name not avalible');
+            }
+        }
+
+        function addMath(type) {
+            const listsContainer = document.getElementById('lists');
+            const lists = listsContainer.getElementsByClassName('list');
+
+            if (lists.length === 0) {
+                alert('add a list first');
+                return;
+            }
+
+            const listOptions = Array.from(lists).map(list => {
+                const title = list.querySelector('.list-title input').value || 'Unnamed List';
+                return `${list.id}:${title}`;
+            });
+
+            const selected = prompt(`add your math to\n${listOptions.map(opt => opt.split(':')[1]).join('\n')}`);
+
+            const selectedList = listOptions.find(opt => opt.split(':')[1] === selected);
+
+            if (selectedList) {
+                const listId = selectedList.split(':')[0];
+                const listDiv = document.getElementById(listId);
+
+                const mathDiv = document.createElement('div');
+                mathDiv.className = 'math';
+
+                const mathInput = document.createElement('input');
+                mathInput.type = 'text';
+                mathInput.placeholder = `Enter ${type === 'plus' ? 'addition' : 'subtraction'} LaTeX math`;
+                mathInput.oninput = () => {
+                    const isMath = /^\$\$.*\$\$/.test(mathInput.value);
+                    const mathDisplay = mathDiv.querySelector('.math-display');
+                    if (isMath) {
+                        mathDisplay.textContent = mathInput.value;
+                        MathJax.typesetPromise([mathDisplay]);
+                    } else {
+                        mathDisplay.textContent = '';
+                    }
+                };
+
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.className = 'color-picker';
+                colorPicker.oninput = () => mathDiv.style.borderColor = colorPicker.value;
+
+                const mathDisplay = document.createElement('div');
+                mathDisplay.className = 'math-display';
+
+                mathDiv.appendChild(mathInput);
+                mathDiv.appendChild(colorPicker);
+                mathDiv.appendChild(mathDisplay);
+                listDiv.appendChild(mathDiv);
+            } else if (selected !== null) {
+                alert('list name is not avalible');
+            }
+        }
+    </script>
+</body>
+</html>
